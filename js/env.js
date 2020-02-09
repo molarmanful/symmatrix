@@ -24,10 +24,11 @@ class Env {
   gen(){}
 
   step(){
+    console.clear()
     this.cells.map(cell=>{
-      let i = this.cells.findIndex(a=> a.id == cell.id)
+      let i = this.indatid(cell.id)
       this.clearpx(cell.x, cell.y)
-      if(cell.life && cell.energy){
+      if(cell.life > 0 && cell.energy > 0){
         cell.act()
         this.add(this.cells.splice(i, 1)[0])
       }
@@ -35,7 +36,6 @@ class Env {
         this.cells.splice(i, 1)
       }
     })
-    console.clear()
     console.log(this.cells)
   }
 
@@ -53,8 +53,12 @@ class Env {
     this.ctx.clearRect(x, y, 1, 1)
   }
 
-  findcell(x, y){
-    return this.cells.find(cell=> cell.x == x && cell.y == y)
+  indatpos(x, y){
+    return this.cells.findIndex(cell=> cell.x == x && cell.y == y)
+  }
+
+  indatid(id){
+    return this.cells.findIndex(a=> a.id == id)
   }
 }
 
