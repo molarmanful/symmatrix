@@ -5,15 +5,12 @@ window.ENV = new Env(out, innerWidth, innerHeight)
 
 onload = _=>{
   ENV.add(
-    new Plant(ENV, 0 | innerWidth / 2, 0 | innerHeight / 2, '#00ff00', 3, 10, 1),
-    new Plant(ENV, 0 | innerWidth / 2 - 4, 0 | innerHeight / 2 - 4, '#00ff00', 3, 10, 1),
-    new Plant(ENV, 0 | innerWidth / 2 + 4, 0 | innerHeight / 2 - 4, '#00ff00', 3, 10, 1),
-    new Plant(ENV, 0 | innerWidth / 2 - 4, 0 | innerHeight / 2 + 4, '#00ff00', 3, 10, 1),
-    new Plant(ENV, 0 | innerWidth / 2 + 4, 0 | innerHeight / 2 + 4, '#00ff00', 3, 10, 1),
-    new Animal(ENV, 0 | innerWidth / 2 + 4, 0 | innerHeight / 2, '#ff0000', 20, 100, 1),
-    new Animal(ENV, 0 | innerWidth / 2 - 4, 0 | innerHeight / 2, '#ff0000', 20, 100, 1),
-    new Animal(ENV, 0 | innerWidth / 2, 0 | innerHeight / 2 + 4, '#ff0000', 20, 100, 1),
-    new Animal(ENV, 0 | innerWidth / 2, 0 | innerHeight / 2 - 4, '#ff0000', 20, 100, 1)
+    new Plant(ENV, 0 | innerWidth / 2, 0 | innerHeight / 2, {
+      type: '#00ff00',
+      energy: 3,
+      life: 10,
+      eff: 1
+    })
   )
 
   ENV.cells.map(a=> a.display())

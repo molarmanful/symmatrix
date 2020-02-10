@@ -1,14 +1,15 @@
 class Cell {
-  constructor(env, x, y, type, energy, life, eff){
+  constructor(env, x, y, opts){
     this.env = env
     this.x = x
     this.y = y
-    this.type = type
+    this.type = opts.type
     this.energy = 1
-    this.benergy = energy
-    this.life = life
-    this.blife = life
-    this.eff = eff
+    this.benergy = opts.energy
+    this.life = opts.life
+    this.blife = opts.life
+    this.eff = opts.eff
+    this.sight = opts.sight
   }
 
   display(){
@@ -47,6 +48,16 @@ class Cell {
     return xs.length ? xs[0 | Math.random() * xs.length] : {}
   }
 
+  static dist(x1, y1, x2, y2){
+    return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** .5
+  }
+
+  near(xs){
+    return xs.sort((a, b)=>
+      Cell.dist(this.x, this.y, a.x, a.y) - Cell.dist(this.x, this.y, b.x, b.y)
+    )
+  }
+
   randempty(){
     return Cell.randpick(this.neighbors.filter(nb=> !nb.cell))
   }
@@ -68,8 +79,8 @@ class Cell {
 }
 
 class Plant extends Cell {
-  constructor(env, x, y, type, energy, life, eff){
-    super(env, x, y, type, energy, life, eff)
+  constructor(env, x, y, opts){
+    super(env, x, y, opts)
   }
 
   display(){
@@ -87,14 +98,19 @@ class Plant extends Cell {
     let empty = this.randempty()
     if(Object.keys(empty).length){
       this.energy -= this.benergy
-      this.env.add(new this.constructor(this.env, empty.x, empty.y, this.type, this.benergy, this.blife, this.eff))
+      this.env.add(new this.constructor(this.env, empty.x, empty.y, {
+        type: this.type,
+        energy: this.benergy,
+        life: this.blife,
+        eff: this.eff
+      }))
     }
   }
 }
 
 class Animal extends Cell {
-  constructor(env, x, y, type, energy, life, eff){
-    super(env, x, y, type, energy, life, eff)
+  constructor(env, x, y, opts){
+    super(env, x, y, opts)
     this.energy = this.benergy
   }
 
@@ -116,11 +132,27 @@ class Animal extends Cell {
     )
   }
 
+  nearestfood(){
+    return Cell.near(
+      this.env.cells.filter(cell=>
+        cell.type != this.type && cell.energy > 0
+      )[0]
+    )
+  }
+
   randmate(){
     return Cell.randpick(
       this.neighbors.filter(nb=>
         nb.cell && nb.cell.type == this.type && nb.cell.energy >= nb.cell.benergy
       )
+    )
+  }
+
+  nearestmate(){
+    return Cell.near(
+      this.env.cells.filter(cell=>
+        cell.type == this.type && cell.energy >= cell.benergy
+      )[0]
     )
   }
 
@@ -136,13 +168,20 @@ class Animal extends Cell {
     }
   }
 
+  breakfood(){}
+
   dup(id){
     let mate = this.env.cells[this.env.indatid(id)]
     let empty = this.randempty()
     if(Object.keys(empty).length){
       this.energy -= this.benergy
       mate.energy -= mate.benergy
-      this.env.add(new this.constructor(this.env, empty.x, empty.y, this.type, this.benergy, this.blife, this.eff))
+      this.env.add(new this.constructor(this.env, empty.x, empty.y, {
+        type: this.type,
+        energy: this.benergy,
+        life: this.blife,
+        eff: this.eff
+      }))
     }
   }
 }
