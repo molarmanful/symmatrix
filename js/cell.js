@@ -13,13 +13,11 @@ class Cell {
   }
 
   display(){
-    let opacity = this.energy / this.benergy
-    this.env.setpx(this.x, this.y, this.type, opacity > 1 ? 1 : opacity)
+    this.env.setpx(this.x, this.y, this.type, Math.min(this.energy / this.benergy, 1))
   }
 
   act(){
-    this.life -= 1
-    this.display()
+    this.life--
   }
 
   get neighbors(){
@@ -52,8 +50,11 @@ class Cell {
     return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** .5
   }
 
-  near(xs){
-    return xs.sort((a, b)=>
+  near(xs, x, y){
+    return xs.filter(a=>{
+      let dist = Cell.dist(this.x, this.y, a.x, a.y)
+      return dist <= this.sight && dist > 0
+    }).sort((a, b)=>
       Cell.dist(this.x, this.y, a.x, a.y) - Cell.dist(this.x, this.y, b.x, b.y)
     )
   }
@@ -68,10 +69,22 @@ class Cell {
 
   randmove(){
     let empty = this.randempty()
-    if(Object.keys(empty).length){
-      this.x = empty.x
-      this.y = empty.y
+    if(Object.keys(empty).length) this.move(empty.x, empty.y)
+  }
+
+  nearmove(x, y){
+    let empties = this.neighbors.filter(nb=> !nb.cell)
+    if(empties.length){
+      let nempty = empties.sort((a, b)=>
+        Cell.dist(x, y, a.x, a.y) - Cell.dist(x, y, b.x, b.y)
+      )[0]
+      this.move(nempty.x, nempty.y)
     }
+  }
+
+  move(x, y){
+    this.x = x
+    this.y = y
     this.energy -= this.eff
   }
 
@@ -84,8 +97,7 @@ class Plant extends Cell {
   }
 
   display(){
-    let opacity = this.energy / (this.benergy * 2)
-    this.env.setpx(this.x, this.y, this.type, opacity > 1 ? 1 : opacity)
+    this.env.setpx(this.x, this.y, this.type, Math.min(this.energy / (this.benergy * 2), 1))
   }
 
   act(){
@@ -115,12 +127,20 @@ class Animal extends Cell {
   }
 
   act(){
+    let nmate = this.nearestmate()
+    let nfood = this.nearestfood()
     let mate = this.randmate().cell
     let food = this.randfood().cell
-    if(mate && this.energy >= this.benergy) this.dup(mate.id)
-    else if(food) this.eat(food.id)
-    else if(this.energy > this.eff) this.randmove()
-    else this.energy = 0
+    if(food) this.eat(food.id)
+    if(this.energy >= this.benergy){
+      if(mate) this.dup(mate.id)
+      else if(nmate) this.neardestroy(nmate.x, nmate.y)
+      else this.randdestroy()
+    }
+    else if(!food){
+      if(nfood) this.nearmove(nfood.x, nfood.y)
+      else this.randmove()
+    }
     super.act()
   }
 
@@ -133,11 +153,11 @@ class Animal extends Cell {
   }
 
   nearestfood(){
-    return Cell.near(
+    return this.near(
       this.env.cells.filter(cell=>
         cell.type != this.type && cell.energy > 0
-      )[0]
-    )
+      )
+    )[0]
   }
 
   randmate(){
@@ -149,11 +169,11 @@ class Animal extends Cell {
   }
 
   nearestmate(){
-    return Cell.near(
+    return this.near(
       this.env.cells.filter(cell=>
         cell.type == this.type && cell.energy >= cell.benergy
-      )[0]
-    )
+      )
+    )[0]
   }
 
   eat(id){
@@ -168,7 +188,26 @@ class Animal extends Cell {
     }
   }
 
-  breakfood(){}
+  destroy(near){
+    if(near.cell) this.env.delid(near.id)
+    this.move(near.x, near.y)
+  }
+
+  randdestroy(){
+    let nears = this.neighbors.filter(nb=>
+      (nb.cell && nb.cell.type != this.type && this.energy >= nb.cell.energy) || !nb.cell
+    )
+    if(nears.length) this.destroy(Cell.randpick(nears))
+  }
+
+  neardestroy(x, y){
+    let near = this.neighbors.filter(nb=>
+      (nb.cell && nb.cell.type != this.type && this.energy >= nb.cell.energy) || !nb.cell
+    ).sort((a, b)=>
+      Cell.dist(x, y, a.x, a.y) - Cell.dist(x, y, b.x, b.y)
+    )[0]
+    if(near) this.destroy(near)
+  }
 
   dup(id){
     let mate = this.env.cells[this.env.indatid(id)]

@@ -1,19 +1,73 @@
 import Env from './env.js'
 import {Cell, Plant, Animal} from './cell.js'
 
-window.ENV = new Env(out, innerWidth, innerHeight)
+let w = 11
+let h = 11
+window.ENV = new Env(out, w, h)
 
 onload = _=>{
   ENV.add(
-    new Plant(ENV, 0 | innerWidth / 2, 0 | innerHeight / 2, {
+    new Plant(ENV, 0 | w / 2, 0 | h / 2, {
       type: '#00ff00',
       energy: 3,
       life: 10,
       eff: 1
+    }),
+    new Plant(ENV, 0 | w / 2 + 5, 0 | h / 2, {
+      type: '#00ff00',
+      energy: 3,
+      life: 10,
+      eff: 1
+    }),
+    new Plant(ENV, 0 | w / 2 - 5, 0 | h / 2, {
+      type: '#00ff00',
+      energy: 3,
+      life: 10,
+      eff: 1
+    }),
+    new Plant(ENV, 0 | w / 2, 0 | h / 2 + 5, {
+      type: '#00ff00',
+      energy: 3,
+      life: 10,
+      eff: 1
+    }),
+    new Plant(ENV, 0 | w / 2, 0 | h / 2 - 5, {
+      type: '#00ff00',
+      energy: 3,
+      life: 10,
+      eff: 1
+    }),
+    new Animal(ENV, 0 | w / 2 + 5, 0 | h / 2 + 5, {
+      type: '#ff0000',
+      energy: 20,
+      life: 100,
+      eff: 1,
+      sight: 10
+    }),
+    new Animal(ENV, 0 | w / 2 + 5, 0 | h / 2 - 5, {
+      type: '#ff0000',
+      energy: 20,
+      life: 100,
+      eff: 1,
+      sight: 10
+    }),
+    new Animal(ENV, 0 | w / 2 - 5, 0 | h / 2 + 5, {
+      type: '#ff0000',
+      energy: 20,
+      life: 100,
+      eff: 1,
+      sight: 10
+    }),
+    new Animal(ENV, 0 | w / 2 - 5, 0 | h / 2 - 5, {
+      type: '#ff0000',
+      energy: 20,
+      life: 100,
+      eff: 1,
+      sight: 10
     })
   )
 
-  ENV.cells.map(a=> a.display())
+  ENV.cells.map(cell=> cell.display())
 
   let play = false
   async function loop(){
@@ -25,9 +79,9 @@ onload = _=>{
 
   onkeydown = e=>{
     if(e.key == ' '){
-      play = !play
-      if(play) loop(play)
-      //ENV.step()
+      // play = !play
+      // if(play) loop(play)
+      ENV.step()
     }
   }
 }
