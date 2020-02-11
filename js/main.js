@@ -7,7 +7,7 @@ let h = 50
 let presets = {}
 presets.empty = [200]
 presets.plant =
-  [100, Plant, {
+  [50, Plant, {
     type: '#00ff00',
     energy: 4,
     life: 12,
@@ -24,7 +24,7 @@ presets.herb =
     destr: [presets.plant[2].type]
   }],
 presets.carn =
-  [5, Animal, {
+  [1, Animal, {
     type: '#ff0000',
     energy: 24,
     life: 72,
