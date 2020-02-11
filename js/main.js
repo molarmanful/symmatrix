@@ -1,8 +1,8 @@
 import Env from './env.js'
 import {Cell, Plant, Animal} from './cell.js'
 
-let w = 11
-let h = 11
+let w = innerWidth
+let h = innerHeight
 window.ENV = new Env(out, w, h)
 
 onload = _=>{
@@ -83,5 +83,9 @@ onload = _=>{
       // if(play) loop(play)
       ENV.step()
     }
+  }
+
+  out.onclick = e=>{
+    console.log(e.x, e.y, ENV.cells.filter(cell=> cell.x == e.x && cell.y == e.y))
   }
 }

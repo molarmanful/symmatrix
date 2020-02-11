@@ -189,15 +189,18 @@ class Animal extends Cell {
   }
 
   destroy(near){
-    if(near.cell) this.env.delid(near.id)
+    if(near.cell){
+      this.energy += Math.min(this.eff, near.cell.energy)
+      this.env.delid(near.cell.id)
+    }
     this.move(near.x, near.y)
   }
 
   randdestroy(){
-    let nears = this.neighbors.filter(nb=>
+    let near = Cell.randpick(this.neighbors.filter(nb=>
       (nb.cell && nb.cell.type != this.type && this.energy >= nb.cell.energy) || !nb.cell
-    )
-    if(nears.length) this.destroy(Cell.randpick(nears))
+    ))
+    if(near) this.destroy(near)
   }
 
   neardestroy(x, y){

@@ -25,6 +25,7 @@ class Env {
 
   step(){
     console.clear()
+    this.clearall()
     this.cells.map(cell=>{
       let i = this.indatid(cell.id)
       if(~i){
@@ -37,7 +38,6 @@ class Env {
         }
       }
     })
-    this.clearall()
     this.cells.map(cell=> cell.display())
     console.log(this.cells)
   }
@@ -71,7 +71,6 @@ class Env {
   delid(id){
     let i = this.indatid(id)
     if(~i){
-      console.log(i)
       this.cells.splice(i, 1)
     }
   }
