@@ -9,36 +9,33 @@ class Env {
     this.id = 0
   }
 
+  display(){
+    return Promise.all(this.cells.map(async cell=>{
+      cell.display()
+    }))
+  }
+
   add(...cells){
     cells.map(cell=>{
       if(cell){
         if(cell.id == undefined){
           cell.id = this.id++
         }
-        if(!this.cells.length) this.cells.push(cell)
-        else {
-          let i = this.cells.findIndex(a=> a.energy < cell.energy)
-          if(i < 0) this.cells.push(cell)
-          else this.cells.splice(i, 0, cell)
-        }
+        let i = this.cells.findIndex(a=> cell.energy <= a.energy)
+        if(~i) this.cells.splice(i, 0, cell)
+        else this.cells.push(cell)
       }
     })
   }
 
   gen(n, cells){
-    let xs = Array.from(Array(this.width).keys())
-    let ys = Array.from(Array(this.height).keys())
-    let total = cells.reduce((a, b)=> a + b[0], 0)
-    Array.from(Array(n), _=>{
-      let x = Cell.randpick(xs)
-      let y = Cell.randpick(ys)
-      let pick = Cell.randpick(cells.flatMap(a=>
-        Array(a[0]).fill(a.slice(1))
-      ))
-      let cell = new pick[0](this, x, y, pick[1])
-      this.add(cell)
-      xs.splice(xs.indexOf(x), 1)
-      ys.splice(ys.indexOf(y), 1)
+    Array.from(Array(this.width), (_, x)=>{
+      Array.from(Array(this.height), (_, y)=>{
+        let pick = Cell.randpick(cells.flatMap(a=>
+          Array(a[0]).fill(a.slice(1))
+        ))
+        if(pick.length) this.add(new pick[0](this, x, y, pick[1]))
+      })
     })
   }
 
@@ -49,14 +46,14 @@ class Env {
       if(~i){
         if(cell.life > 0 && cell.energy > 0){
           cell.act()
-          this.add(this.cells.splice(i, 1)[0])
+          this.add(...this.cells.splice(this.indatid(cell.id), 1))
         }
         else {
           this.cells.splice(i, 1)
         }
       }
     })
-    this.cells.map(cell=> cell.display())
+    this.display()
   }
 
   getpx(x, y){

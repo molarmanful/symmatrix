@@ -139,7 +139,7 @@ class Animal extends Cell {
       else if(nmate) this.neardestroy(nmate.x, nmate.y)
       else this.randdestroy()
     }
-    else if(!food){
+    if(!food){
       if(nfood) this.neardestroy(nfood.x, nfood.y)
       else this.randmove()
     }
@@ -195,8 +195,8 @@ class Animal extends Cell {
   }
 
   destroy(near){
-    if(near.cell){
-      if(this.isdestr(near.cell)){
+    if(near.cell && this.isdestr(near.cell)){
+      if(this.isfood(near.cell)){
         this.energy += Math.min(this.eff, near.cell.energy)
       }
       this.env.delid(near.cell.id)
