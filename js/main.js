@@ -1,71 +1,37 @@
 import Env from './env.js'
 import {Cell, Plant, Animal} from './cell.js'
 
-let w = innerWidth
-let h = innerHeight
+let w = 50
+let h = 50
 window.ENV = new Env(out, w, h)
 
 onload = _=>{
-  ENV.add(
-    new Plant(ENV, 0 | w / 2, 0 | h / 2, {
+  ENV.gen(100, [
+    [3, Plant, {
       type: '#00ff00',
-      energy: 3,
+      energy: 4,
       life: 10,
-      eff: 1
-    }),
-    new Plant(ENV, 0 | w / 2 + 5, 0 | h / 2, {
-      type: '#00ff00',
-      energy: 3,
-      life: 10,
-      eff: 1
-    }),
-    new Plant(ENV, 0 | w / 2 - 5, 0 | h / 2, {
-      type: '#00ff00',
-      energy: 3,
-      life: 10,
-      eff: 1
-    }),
-    new Plant(ENV, 0 | w / 2, 0 | h / 2 + 5, {
-      type: '#00ff00',
-      energy: 3,
-      life: 10,
-      eff: 1
-    }),
-    new Plant(ENV, 0 | w / 2, 0 | h / 2 - 5, {
-      type: '#00ff00',
-      energy: 3,
-      life: 10,
-      eff: 1
-    }),
-    new Animal(ENV, 0 | w / 2 + 5, 0 | h / 2 + 5, {
+      eff: 2
+    }],
+    [2, Animal, {
+      type: '#0000ff',
+      energy: 10,
+      life: 40,
+      eff: 1,
+      sight: 10,
+      prey: ['#00ff00'],
+      destr: ['#00ff00']
+    }],
+    [1, Animal, {
       type: '#ff0000',
       energy: 20,
-      life: 100,
+      life: 60,
       eff: 1,
-      sight: 10
-    }),
-    new Animal(ENV, 0 | w / 2 + 5, 0 | h / 2 - 5, {
-      type: '#ff0000',
-      energy: 20,
-      life: 100,
-      eff: 1,
-      sight: 10
-    }),
-    new Animal(ENV, 0 | w / 2 - 5, 0 | h / 2 + 5, {
-      type: '#ff0000',
-      energy: 20,
-      life: 100,
-      eff: 1,
-      sight: 10
-    }),
-    new Animal(ENV, 0 | w / 2 - 5, 0 | h / 2 - 5, {
-      type: '#ff0000',
-      energy: 20,
-      life: 100,
-      eff: 1,
-      sight: 10
-    })
-  )
+      sight: 50,
+      prey: ['#0000ff'],
+      destr: ['#0000ff', '#00ff00']
+    }]
+  ])
 
   ENV.cells.map(cell=> cell.display())
 
@@ -79,13 +45,13 @@ onload = _=>{
 
   onkeydown = e=>{
     if(e.key == ' '){
-      // play = !play
-      // if(play) loop(play)
-      ENV.step()
+      play = !play
+      if(play) loop(play)
+      // ENV.step()
     }
   }
 
   out.onclick = e=>{
-    console.log(e.x, e.y, ENV.cells.filter(cell=> cell.x == e.x && cell.y == e.y))
+    console.log(e.x, e.y, ENV.cells.filter(cell=> cell.x == e.x - out.offsetLeft && cell.y == e.y - out.offsetTop))
   }
 }

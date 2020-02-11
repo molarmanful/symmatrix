@@ -10,6 +10,8 @@ class Cell {
     this.blife = opts.life
     this.eff = opts.eff
     this.sight = opts.sight
+    this.prey = opts.prey
+    this.destr = opts.destr
   }
 
   display(){
@@ -123,7 +125,7 @@ class Plant extends Cell {
 class Animal extends Cell {
   constructor(env, x, y, opts){
     super(env, x, y, opts)
-    this.energy = this.benergy
+    this.energy = this.benergy - 1
   }
 
   act(){
@@ -138,16 +140,20 @@ class Animal extends Cell {
       else this.randdestroy()
     }
     else if(!food){
-      if(nfood) this.nearmove(nfood.x, nfood.y)
+      if(nfood) this.neardestroy(nfood.x, nfood.y)
       else this.randmove()
     }
     super.act()
   }
 
+  isfood(cell){
+    return !!this.prey.find(type=> type == cell.type)
+  }
+
   randfood(){
     return Cell.randpick(
       this.neighbors.filter(nb=>
-        nb.cell && nb.cell.type != this.type && nb.cell.energy > 0
+        nb.cell && this.isfood(nb.cell) && nb.cell.energy > 0
       )
     )
   }
@@ -155,7 +161,7 @@ class Animal extends Cell {
   nearestfood(){
     return this.near(
       this.env.cells.filter(cell=>
-        cell.type != this.type && cell.energy > 0
+        this.isfood(cell) && cell.energy > 0
       )
     )[0]
   }
@@ -190,22 +196,28 @@ class Animal extends Cell {
 
   destroy(near){
     if(near.cell){
-      this.energy += Math.min(this.eff, near.cell.energy)
+      if(this.isdestr(near.cell)){
+        this.energy += Math.min(this.eff, near.cell.energy)
+      }
       this.env.delid(near.cell.id)
     }
     this.move(near.x, near.y)
   }
 
+  isdestr(cell){
+    return this.destr.find(type=> type == cell.type)
+  }
+
   randdestroy(){
     let near = Cell.randpick(this.neighbors.filter(nb=>
-      (nb.cell && nb.cell.type != this.type && this.energy >= nb.cell.energy) || !nb.cell
+      (nb.cell && this.isdestr(nb.cell) && this.energy >= nb.cell.energy) || !nb.cell
     ))
     if(near) this.destroy(near)
   }
 
   neardestroy(x, y){
     let near = this.neighbors.filter(nb=>
-      (nb.cell && nb.cell.type != this.type && this.energy >= nb.cell.energy) || !nb.cell
+      (nb.cell && this.isdestr(nb.cell) && this.energy >= nb.cell.energy) || !nb.cell
     ).sort((a, b)=>
       Cell.dist(x, y, a.x, a.y) - Cell.dist(x, y, b.x, b.y)
     )[0]
@@ -216,13 +228,16 @@ class Animal extends Cell {
     let mate = this.env.cells[this.env.indatid(id)]
     let empty = this.randempty()
     if(Object.keys(empty).length){
-      this.energy -= this.benergy
+      this.energy -= 1
       mate.energy -= mate.benergy
       this.env.add(new this.constructor(this.env, empty.x, empty.y, {
         type: this.type,
         energy: this.benergy,
         life: this.blife,
-        eff: this.eff
+        eff: this.eff,
+        sight: this.sight,
+        prey: this.prey,
+        destr: this.destr
       }))
     }
   }
