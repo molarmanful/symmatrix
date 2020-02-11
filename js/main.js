@@ -5,7 +5,7 @@ let w = 50
 let h = 50
 
 let presets = {}
-presets.empty = [200]
+presets.empty = [100]
 presets.plant =
   [50, Plant, {
     type: '#00ff00',
@@ -14,7 +14,7 @@ presets.plant =
     eff: 2
   }],
 presets.herb =
-  [10, Animal, {
+  [5, Animal, {
     type: '#0000ff',
     energy: 8,
     life: 40,
